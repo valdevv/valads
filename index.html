@@ -10,7 +10,7 @@
     <header class="site-header" id="siteHeader">
       <div class="container header-inner">
         <a class="logo-link" href="#domov" aria-label="Prejsť na domovskú sekciu">
-          <img src="images/logo/valads.png" alt="VALADS logo" id="brandLogo" />
+          <img src="images/logo/valads.png" alt="VALADS logo" id="brandLogo" loading="eager" decoding="async" />
         </a>
 
         <div class="header-actions">
@@ -30,7 +30,7 @@
       </div>
     </header>
 
-    <main>
+    <main class="site-main">
       <section id="domov" class="section hero-section">
         <div class="container hero-grid">
           <div class="hero-copy">
@@ -78,7 +78,7 @@
           <div class="section-head">
             <p class="eyebrow">Prípadové štúdie</p>
             <h2>Tri projekty, tri rôzne ciele, jeden jasný výsledok.</h2>
-            <p class="lead">Každá spolupráca začala konkrétnym problémom a skončila merateľnou zmenou.</p>
+            <p class="lead">Každá spolupráca začala konkrétnym problémom a skončila jasným výsledkom.</p>
           </div>
 
           <div class="projects-list" id="projectsList"></div>
@@ -205,7 +205,7 @@
                 </button>
               </h3>
               <div class="faq-panel" id="faq-panel-6" role="region" aria-labelledby="faq-trigger-6" hidden>
-                <p>Napíšte nám stručné zadanie cez formulár nižšie. Ozveme sa vám a navrhneme prvé konkrétne kroky.</p>
+                <p>Zavolajte nám alebo napíšte email. Ozveme sa vám a navrhneme prvé konkrétne kroky.</p>
               </div>
             </article>
           </div>
@@ -224,51 +224,19 @@
 
       <section id="kontakt" class="section contact-section">
         <div class="container">
-          <div class="contact-grid">
-            <div class="contact-info">
-              <p class="eyebrow">Kontakt</p>
-              <h2>Ozvite sa</h2>
+          <div class="contact-single">
+            <p class="eyebrow">Kontakt</p>
+            <h2>Ozvite sa</h2>
+            <p class="contact-lead">Ak máte otázku alebo plán, stačí zavolať alebo napísať.</p>
 
-              <div class="contact-links">
-                <a id="phoneLink" class="contact-link-card" href="#"></a>
-                <a id="emailLink" class="contact-link-card" href="#"></a>
-              </div>
-
-              <p class="contact-location" id="locationText"></p>
-
-              <div class="social-row" aria-label="Sociálne siete">
-                <a class="social-btn" id="facebookLink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <img src="images/social/facebook.png" alt="" />
-                </a>
-                <a class="social-btn" id="instagramLink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <img src="images/social/instagram.png" alt="" />
-                </a>
-              </div>
+            <div class="contact-direct">
+              <a id="phoneLink" class="contact-phone" href="#"></a>
+              <a id="emailLink" class="contact-email" href="#"></a>
             </div>
 
-            <div class="contact-form-wrap">
-              <form id="contactForm" novalidate>
-                <div class="field-group">
-                  <label for="name">Meno</label>
-                  <input id="name" name="name" type="text" autocomplete="name" required />
-                  <p class="field-error" id="nameError" aria-live="polite"></p>
-                </div>
-
-                <div class="field-group">
-                  <label for="email">Email</label>
-                  <input id="email" name="email" type="email" autocomplete="email" required />
-                  <p class="field-error" id="emailError" aria-live="polite"></p>
-                </div>
-
-                <div class="field-group">
-                  <label for="message">Správa</label>
-                  <textarea id="message" name="message" rows="6" required></textarea>
-                  <p class="field-error" id="messageError" aria-live="polite"></p>
-                </div>
-
-                <button class="btn btn-primary form-submit" type="submit">Odoslať správu</button>
-              </form>
-            </div>
+            <a class="contact-instagram" id="instagramLink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <img src="images/social/instagram.png" alt="" />
+            </a>
           </div>
         </div>
       </section>
@@ -279,9 +247,6 @@
         <p id="footerText"></p>
       </div>
     </footer>
-
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
     <script src="script.js"></script>
   </body>
 </html>

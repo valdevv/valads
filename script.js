@@ -1,11 +1,9 @@
 const CONFIG = {
   brandName: "VALADS",
-  phone: "+421 903 654 210",
-  email: "hello@valads.sk",
-  location: "Košice / Slovensko",
+  phone: "+421915265671",
+  email: "branislav.grafika@gmail.com",
   social: {
-    facebook: "https://www.facebook.com/",
-    instagram: "https://www.instagram.com/"
+    instagram: "https://www.instagram.com/valads_official/"
   },
   projects: [
     {
@@ -20,22 +18,24 @@ const CONFIG = {
       image: "images/case/stary-dom.jpg"
     },
     {
+      eyebrow: "PRÍPADOVÁ ŠTÚDIA 02",
       title: "Firemný web pre B2B technologickú spoločnosť",
       problem:
         "Obchodný tím nedostával kvalitné dopyty, pretože web nekomunikoval hodnotu služieb jasne.",
       solution:
         "Navrhli sme nový obsahový rámec, segmentované landing stránky a prehľadné CTA podľa cieľových skupín.",
       result:
-        "Podiel relevantných dopytov vzrástol o 46 % a čas strávený na webe sa predĺžil na dvojnásobok."
+        "Web dnes komunikuje hodnotu služieb jasnejšie a obchodný tím získava kvalitnejšie vstupné dopyty."
     },
     {
+      eyebrow: "PRÍPADOVÁ ŠTÚDIA 03",
       title: "Relaunch služby v oblasti vzdelávania",
       problem:
         "Pôvodný web bol technicky zastaraný, pomalý a komplikoval správu obsahu internému tímu.",
       solution:
         "Vytvorili sme nový frontend, upravili štruktúru obsahu a nastavili jednoduchú správu stránok bez zbytočnej zložitosti.",
       result:
-        "Web sa načítava výrazne rýchlejšie, tím zvláda publikovanie samostatne a počet registrácií stúpol o 33 %."
+        "Riešenie je stabilné, obsah sa spravuje jednoducho a návštevníci sa v ponuke orientujú výrazne rýchlejšie."
     }
   ]
 };
@@ -56,24 +56,11 @@ const projectsList = document.getElementById("projectsList");
 
 const phoneLink = document.getElementById("phoneLink");
 const emailLink = document.getElementById("emailLink");
-const locationText = document.getElementById("locationText");
-const facebookLink = document.getElementById("facebookLink");
 const instagramLink = document.getElementById("instagramLink");
 const footerText = document.getElementById("footerText");
 const brandLogo = document.getElementById("brandLogo");
 
 const faqTriggers = Array.from(document.querySelectorAll(".faq-trigger"));
-
-const form = document.getElementById("contactForm");
-const nameInput = document.getElementById("name");
-const emailInput = document.getElementById("email");
-const messageInput = document.getElementById("message");
-const nameError = document.getElementById("nameError");
-const emailError = document.getElementById("emailError");
-const messageError = document.getElementById("messageError");
-
-const toast = document.getElementById("toast");
-let toastTimer;
 
 let showcaseIndex = 0;
 let showcaseTimer;
@@ -97,9 +84,6 @@ function populateContact() {
   emailLink.textContent = CONFIG.email;
   emailLink.href = `mailto:${CONFIG.email}`;
 
-  locationText.textContent = CONFIG.location || "";
-
-  facebookLink.href = CONFIG.social.facebook;
   instagramLink.href = CONFIG.social.instagram;
 }
 
@@ -112,6 +96,23 @@ function createShowcase() {
     const slide = document.createElement("article");
     slide.className = "showcase-slide";
     slide.setAttribute("aria-hidden", index === 0 ? "false" : "true");
+    const showcaseVisual = project.image
+      ? `
+      <div class="showcase-visual has-image" aria-hidden="true">
+        <img src="${project.image}" alt="${project.title}" loading="lazy" decoding="async" />
+      </div>
+    `
+      : `
+      <div class="showcase-visual" aria-hidden="true">
+        <div class="showcase-visual-placeholder">
+          <div class="visual-head"></div>
+          <div class="visual-block"></div>
+          <div class="visual-row"></div>
+          <div class="visual-row"></div>
+        </div>
+      </div>
+    `;
+
     slide.innerHTML = `
       <div class="showcase-card">
         <div class="showcase-meta">
@@ -119,13 +120,7 @@ function createShowcase() {
           <h3>${project.title}</h3>
           <p>${project.result}</p>
         </div>
-        <div class="showcase-visual" aria-hidden="true">
-          <div class="visual-head"></div>
-          <div class="visual-block"></div>
-          <div class="visual-row"></div>
-          <div class="visual-row"></div>
-          <div class="visual-row"></div>
-        </div>
+        ${showcaseVisual}
       </div>
     `;
     showcaseTrack.appendChild(slide);
@@ -196,12 +191,12 @@ function createCaseStudies() {
   projects.forEach((project, index) => {
     const caseStudy = document.createElement("article");
     caseStudy.className = "case-study";
-    const fallbackEyebrow = `Prípadová štúdia ${String(index + 1).padStart(2, "0")}`;
+    const fallbackEyebrow = `PRÍPADOVÁ ŠTÚDIA ${String(index + 1).padStart(2, "0")}`;
     const caseMedia = project.image
       ? `
-      <div class="case-mockup has-image" aria-hidden="true">
+      <figure class="case-mockup has-image">
         <img class="case-real-image" src="${project.image}" alt="${project.title}" loading="lazy" decoding="async" />
-      </div>
+      </figure>
     `
       : `
       <div class="case-mockup" aria-hidden="true">
@@ -338,75 +333,6 @@ function setupFaq() {
   });
 }
 
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.add("is-visible");
-
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => {
-    toast.classList.remove("is-visible");
-  }, 3200);
-}
-
-function setError(field, errorElement, message) {
-  errorElement.textContent = message;
-  field.setAttribute("aria-invalid", message ? "true" : "false");
-}
-
-function validateForm() {
-  let isValid = true;
-
-  const trimmedName = nameInput.value.trim();
-  const trimmedEmail = emailInput.value.trim();
-  const trimmedMessage = messageInput.value.trim();
-
-  if (!trimmedName) {
-    setError(nameInput, nameError, "Prosím, zadajte meno.");
-    isValid = false;
-  } else {
-    setError(nameInput, nameError, "");
-  }
-
-  if (!trimmedEmail) {
-    setError(emailInput, emailError, "Prosím, zadajte email.");
-    isValid = false;
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-    setError(emailInput, emailError, "Prosím, zadajte platný email.");
-    isValid = false;
-  } else {
-    setError(emailInput, emailError, "");
-  }
-
-  if (!trimmedMessage) {
-    setError(messageInput, messageError, "Prosím, napíšte správu.");
-    isValid = false;
-  } else if (trimmedMessage.length < 10) {
-    setError(messageInput, messageError, "Správa by mala mať aspoň 10 znakov.");
-    isValid = false;
-  } else {
-    setError(messageInput, messageError, "");
-  }
-
-  return isValid;
-}
-
-function setupForm() {
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    if (!validateForm()) {
-      showToast("Formulár ešte potrebuje doplniť povinné údaje.");
-      return;
-    }
-
-    form.reset();
-    setError(nameInput, nameError, "");
-    setError(emailInput, emailError, "");
-    setError(messageInput, messageError, "");
-    showToast("Ďakujeme, správu sme prijali. Ozveme sa čoskoro.");
-  });
-}
-
 function init() {
   populateBrand();
   populateContact();
@@ -421,7 +347,6 @@ function init() {
 
   setupSmoothScroll();
   setupFaq();
-  setupForm();
 
   if (navToggle) {
     navToggle.addEventListener("click", toggleMobileNav);
