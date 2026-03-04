@@ -1,367 +1,190 @@
-const CONFIG = {
-  brandName: "VALADS",
-  phone: "+421915265671",
-  email: "branislav.grafika@gmail.com",
-  social: {
-    instagram: "https://www.instagram.com/valads_official/"
-  },
-  projects: [
-    {
-      eyebrow: "PRÍPADOVÁ ŠTÚDIA 01",
-      title: "Reštaurácia Starý dom",
-      problem:
-        "Podnik nemal moderný web, ktorý by jasne prezentoval jedálny lístok, atmosféru a umožnil rýchly kontakt.",
-      solution:
-        "Navrhli sme prehľadnú štruktúru stránky so silným vizuálom, jasným CTA na zavolanie a navigáciu a jednoduchým prístupom k menu a rezerváciám.",
-      result:
-        "Reštaurácia získala profesionálnu online prezentáciu, ktorá pôsobí dôveryhodne a uľahčuje zákazníkom kontakt aj orientáciu.",
-      image: "images/case/stary-dom.jpg"
-    },
-    {
-      eyebrow: "PRÍPADOVÁ ŠTÚDIA 02",
-      title: "Firemný web pre B2B technologickú spoločnosť",
-      problem:
-        "Obchodný tím nedostával kvalitné dopyty, pretože web nekomunikoval hodnotu služieb jasne.",
-      solution:
-        "Navrhli sme nový obsahový rámec, segmentované landing stránky a prehľadné CTA podľa cieľových skupín.",
-      result:
-        "Web dnes komunikuje hodnotu služieb jasnejšie a obchodný tím získava kvalitnejšie vstupné dopyty."
-    },
-    {
-      eyebrow: "PRÍPADOVÁ ŠTÚDIA 03",
-      title: "Relaunch služby v oblasti vzdelávania",
-      problem:
-        "Pôvodný web bol technicky zastaraný, pomalý a komplikoval správu obsahu internému tímu.",
-      solution:
-        "Vytvorili sme nový frontend, upravili štruktúru obsahu a nastavili jednoduchú správu stránok bez zbytočnej zložitosti.",
-      result:
-        "Riešenie je stabilné, obsah sa spravuje jednoducho a návštevníci sa v ponuke orientujú výrazne rýchlejšie."
+/* ===========================
+   VALADS — script.js
+   =========================== */
+
+(function () {
+  'use strict';
+
+  /* ---- Smooth scroll polyfill guard ---- */
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- DOM refs ---- */
+  const header      = document.getElementById('header');
+  const navLinks    = document.querySelectorAll('.nav-link');
+  const navToggle   = document.querySelector('.nav-toggle');
+  const nav         = document.querySelector('.nav');
+  const sections    = document.querySelectorAll('section[id]');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalBox    = document.getElementById('modal-box');
+  const modalBody   = document.getElementById('modal-body');
+  const modalClose  = document.getElementById('modal-close');
+
+  /* ===========================
+     HEADER SCROLL BEHAVIOUR
+     =========================== */
+  function onScroll () {
+    if (window.scrollY > 48) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
     }
-  ]
-};
-
-const header = document.querySelector("#siteHeader");
-const navToggle = document.querySelector("#navToggle");
-const mainNav = document.querySelector("#mainNav");
-const navLinks = Array.from(document.querySelectorAll(".nav-link"));
-const anchors = Array.from(document.querySelectorAll('a[href^="#"]'));
-const trackedSections = ["domov", "projekty", "o-nas", "proces", "faq", "kontakt"]
-  .map((id) => document.getElementById(id))
-  .filter(Boolean);
-
-const showcaseTrack = document.getElementById("showcaseTrack");
-const showcaseDots = document.getElementById("showcaseDots");
-const showcaseShell = document.getElementById("showcaseShell");
-const projectsList = document.getElementById("projectsList");
-
-const phoneLink = document.getElementById("phoneLink");
-const emailLink = document.getElementById("emailLink");
-const instagramLink = document.getElementById("instagramLink");
-const footerText = document.getElementById("footerText");
-const brandLogo = document.getElementById("brandLogo");
-
-const faqTriggers = Array.from(document.querySelectorAll(".faq-trigger"));
-
-let showcaseIndex = 0;
-let showcaseTimer;
-let showcaseSlides = [];
-let showcaseDotButtons = [];
-
-function normalizePhone(phone) {
-  return phone.replace(/[\s()-]/g, "");
-}
-
-function populateBrand() {
-  document.title = CONFIG.brandName;
-  brandLogo.alt = `${CONFIG.brandName} logo`;
-  footerText.textContent = `© ${new Date().getFullYear()} ${CONFIG.brandName}. Všetky práva vyhradené.`;
-}
-
-function populateContact() {
-  phoneLink.textContent = CONFIG.phone;
-  phoneLink.href = `tel:${normalizePhone(CONFIG.phone)}`;
-
-  emailLink.textContent = CONFIG.email;
-  emailLink.href = `mailto:${CONFIG.email}`;
-
-  instagramLink.href = CONFIG.social.instagram;
-}
-
-function createShowcase() {
-  const projects = CONFIG.projects.slice(0, 3);
-  showcaseTrack.innerHTML = "";
-  showcaseDots.innerHTML = "";
-
-  projects.forEach((project, index) => {
-    const slide = document.createElement("article");
-    slide.className = "showcase-slide";
-    slide.setAttribute("aria-hidden", index === 0 ? "false" : "true");
-    const showcaseVisual = project.image
-      ? `
-      <div class="showcase-visual has-image" aria-hidden="true">
-        <img src="${project.image}" alt="${project.title}" loading="lazy" decoding="async" />
-      </div>
-    `
-      : `
-      <div class="showcase-visual" aria-hidden="true">
-        <div class="showcase-visual-placeholder">
-          <div class="visual-head"></div>
-          <div class="visual-block"></div>
-          <div class="visual-row"></div>
-          <div class="visual-row"></div>
-        </div>
-      </div>
-    `;
-
-    slide.innerHTML = `
-      <div class="showcase-card">
-        <div class="showcase-meta">
-          <p class="showcase-index">Projekt ${String(index + 1).padStart(2, "0")}</p>
-          <h3>${project.title}</h3>
-          <p>${project.result}</p>
-        </div>
-        ${showcaseVisual}
-      </div>
-    `;
-    showcaseTrack.appendChild(slide);
-
-    const dot = document.createElement("button");
-    dot.type = "button";
-    dot.className = "showcase-dot";
-    dot.setAttribute("aria-label", `Prepnúť na projekt ${index + 1}`);
-    dot.addEventListener("click", () => {
-      setShowcaseSlide(index);
-      restartShowcaseTimer();
-    });
-    showcaseDots.appendChild(dot);
-  });
-
-  showcaseSlides = Array.from(showcaseTrack.querySelectorAll(".showcase-slide"));
-  showcaseDotButtons = Array.from(showcaseDots.querySelectorAll(".showcase-dot"));
-
-  setShowcaseSlide(0);
-}
-
-function setShowcaseSlide(index) {
-  showcaseIndex = index;
-
-  showcaseSlides.forEach((slide, i) => {
-    const isActive = i === showcaseIndex;
-    slide.classList.toggle("is-active", isActive);
-    slide.setAttribute("aria-hidden", isActive ? "false" : "true");
-  });
-
-  showcaseDotButtons.forEach((dot, i) => {
-    dot.classList.toggle("is-active", i === showcaseIndex);
-    dot.setAttribute("aria-current", i === showcaseIndex ? "true" : "false");
-  });
-}
-
-function nextShowcaseSlide() {
-  const nextIndex = (showcaseIndex + 1) % showcaseSlides.length;
-  setShowcaseSlide(nextIndex);
-}
-
-function startShowcaseTimer() {
-  if (!showcaseSlides.length) return;
-  window.clearInterval(showcaseTimer);
-  showcaseTimer = window.setInterval(nextShowcaseSlide, 5000);
-}
-
-function stopShowcaseTimer() {
-  window.clearInterval(showcaseTimer);
-}
-
-function restartShowcaseTimer() {
-  stopShowcaseTimer();
-  startShowcaseTimer();
-}
-
-function setupShowcasePause() {
-  showcaseShell.addEventListener("mouseenter", stopShowcaseTimer);
-  showcaseShell.addEventListener("mouseleave", startShowcaseTimer);
-  showcaseShell.addEventListener("focusin", stopShowcaseTimer);
-  showcaseShell.addEventListener("focusout", startShowcaseTimer);
-}
-
-function createCaseStudies() {
-  const projects = CONFIG.projects.slice(0, 3);
-  projectsList.innerHTML = "";
-
-  projects.forEach((project, index) => {
-    const caseStudy = document.createElement("article");
-    caseStudy.className = "case-study";
-    const fallbackEyebrow = `PRÍPADOVÁ ŠTÚDIA ${String(index + 1).padStart(2, "0")}`;
-    const caseMedia = project.image
-      ? `
-      <figure class="case-mockup has-image">
-        <img class="case-real-image" src="${project.image}" alt="${project.title}" loading="lazy" decoding="async" />
-      </figure>
-    `
-      : `
-      <div class="case-mockup" aria-hidden="true">
-        <div class="case-mockup-inner">
-          <div class="case-mockup-top"></div>
-          <div class="case-mockup-main"></div>
-          <div class="case-mockup-lines">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-    `;
-
-    if (index % 2 === 1) {
-      caseStudy.classList.add("is-reversed");
-    }
-
-    caseStudy.innerHTML = `
-      <div class="case-copy">
-        <p class="case-label">${project.eyebrow || fallbackEyebrow}</p>
-        <h3>${project.title}</h3>
-        <ul class="case-points">
-          <li><strong>Problém:</strong> ${project.problem}</li>
-          <li><strong>Riešenie:</strong> ${project.solution}</li>
-          <li><strong>Výsledok:</strong> ${project.result}</li>
-        </ul>
-      </div>
-      ${caseMedia}
-    `;
-
-    projectsList.appendChild(caseStudy);
-  });
-}
-
-function updateHeaderState() {
-  header.classList.toggle("scrolled", window.scrollY > 8);
-}
-
-function closeMobileNav() {
-  mainNav.classList.remove("is-open");
-  navToggle.setAttribute("aria-expanded", "false");
-}
-
-function toggleMobileNav() {
-  const isOpen = mainNav.classList.toggle("is-open");
-  navToggle.setAttribute("aria-expanded", String(isOpen));
-}
-
-function scrollToSection(targetId) {
-  const target = document.querySelector(targetId);
-  if (!target) return;
-
-  const offset = header.offsetHeight + 12;
-  const top = target.getBoundingClientRect().top + window.scrollY - offset;
-
-  window.scrollTo({
-    top,
-    behavior: "smooth"
-  });
-}
-
-function setupSmoothScroll() {
-  anchors.forEach((anchor) => {
-    const href = anchor.getAttribute("href");
-    if (!href || href === "#") return;
-
-    anchor.addEventListener("click", (event) => {
-      const target = document.querySelector(href);
-      if (!target) return;
-
-      event.preventDefault();
-      scrollToSection(href);
-      closeMobileNav();
-    });
-  });
-}
-
-function updateActiveNavLink() {
-  const offset = window.scrollY + header.offsetHeight + 24;
-  let activeId = trackedSections[0] ? `#${trackedSections[0].id}` : "#domov";
-
-  trackedSections.forEach((section) => {
-    if (offset >= section.offsetTop) {
-      activeId = `#${section.id}`;
-    }
-  });
-
-  navLinks.forEach((link) => {
-    link.classList.toggle("active", link.getAttribute("href") === activeId);
-  });
-}
-
-function setFaqState(trigger, shouldOpen) {
-  const item = trigger.closest(".faq-item");
-  const panel = document.getElementById(trigger.getAttribute("aria-controls"));
-
-  item.classList.toggle("is-open", shouldOpen);
-  trigger.setAttribute("aria-expanded", String(shouldOpen));
-  panel.hidden = !shouldOpen;
-
-  if (shouldOpen) {
-    panel.style.maxHeight = `${panel.scrollHeight}px`;
-  } else {
-    panel.style.maxHeight = "0px";
+    updateActiveNav();
   }
-}
 
-function setupFaq() {
-  faqTriggers.forEach((trigger) => {
-    setFaqState(trigger, false);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // run on load
 
-    trigger.addEventListener("click", () => {
-      const isOpen = trigger.getAttribute("aria-expanded") === "true";
-
-      faqTriggers.forEach((otherTrigger) => {
-        if (otherTrigger !== trigger) {
-          setFaqState(otherTrigger, false);
-        }
-      });
-
-      setFaqState(trigger, !isOpen);
+  /* ===========================
+     ACTIVE NAV HIGHLIGHT
+     =========================== */
+  function updateActiveNav () {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.getBoundingClientRect().top;
+      if (top <= 120) {
+        current = section.id;
+      }
     });
-  });
 
-  window.addEventListener("resize", () => {
-    faqTriggers.forEach((trigger) => {
-      if (trigger.getAttribute("aria-expanded") === "true") {
-        const panel = document.getElementById(trigger.getAttribute("aria-controls"));
-        panel.style.maxHeight = `${panel.scrollHeight}px`;
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.dataset.section === current);
+    });
+  }
+
+  /* ===========================
+     SMOOTH SCROLL FOR ANCHORS
+     =========================== */
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+
+      // Close mobile nav if open
+      closeNav();
+
+      const headerHeight = header.offsetHeight;
+      const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+      if (prefersReducedMotion) {
+        window.scrollTo(0, targetTop);
+      } else {
+        window.scrollTo({ top: targetTop, behavior: 'smooth' });
       }
     });
   });
-}
 
-function init() {
-  populateBrand();
-  populateContact();
-  createShowcase();
-  createCaseStudies();
-
-  updateHeaderState();
-  updateActiveNavLink();
-
-  setupShowcasePause();
-  startShowcaseTimer();
-
-  setupSmoothScroll();
-  setupFaq();
-
-  if (navToggle) {
-    navToggle.addEventListener("click", toggleMobileNav);
+  /* ===========================
+     MOBILE NAV TOGGLE
+     =========================== */
+  function openNav () {
+    nav.classList.add('open');
+    navToggle.classList.add('open');
+    navToggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
   }
 
-  document.addEventListener("click", (event) => {
-    if (!mainNav.contains(event.target) && !navToggle.contains(event.target)) {
-      closeMobileNav();
+  function closeNav () {
+    nav.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  if (navToggle) {
+    navToggle.addEventListener('click', () => {
+      if (nav.classList.contains('open')) {
+        closeNav();
+      } else {
+        openNav();
+      }
+    });
+  }
+
+  // Close nav on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeNav();
+      closeModal();
     }
   });
 
-  window.addEventListener("scroll", () => {
-    updateHeaderState();
-    updateActiveNavLink();
-  });
-}
+  /* ===========================
+     PROJECT MODALS
+     =========================== */
+  function openModal (id) {
+    const tmpl = document.getElementById(`${id}-content`);
+    if (!tmpl) return;
+    modalBody.innerHTML = '';
+    modalBody.appendChild(tmpl.content.cloneNode(true));
+    modalOverlay.classList.add('open');
+    modalOverlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    // Focus trap: move focus to close button
+    setTimeout(() => modalClose.focus(), 50);
+  }
 
-init();
+  function closeModal () {
+    modalOverlay.classList.remove('open');
+    modalOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  // Open via card or link clicks
+  document.querySelectorAll('[data-modal]').forEach(el => {
+    el.addEventListener('click', function (e) {
+      // Don't double-trigger when clicking the button inside the card
+      if (e.target.classList.contains('project-link') && el.tagName === 'ARTICLE') return;
+      if (el.tagName === 'ARTICLE') {
+        openModal(this.dataset.modal);
+      } else {
+        e.stopPropagation();
+        openModal(this.dataset.modal);
+      }
+    });
+  });
+
+  // Close on overlay click (outside modal box)
+  modalOverlay.addEventListener('click', function (e) {
+    if (!modalBox.contains(e.target)) {
+      closeModal();
+    }
+  });
+
+  // Close button
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
+
+  /* ===========================
+     ENTRANCE ANIMATIONS
+     (CSS-driven, JS sets class)
+     =========================== */
+  if (!prefersReducedMotion) {
+    const revealEls = document.querySelectorAll(
+      '.hero-inner, .reality-inner, .section-header, .project-card, .process-step, .contact-intro, .contact-block'
+    );
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = `opacity 0.55s ease ${i * 0.04}s, transform 0.55s ease ${i * 0.04}s`;
+      observer.observe(el);
+    });
+
+    // When revealed class is added, animate in
+    const style = document.createElement('style');
+    style.textContent = `.revealed { opacity: 1 !important; transform: translateY(0) !important; }`;
+    document.head.appendChild(style);
+  }
+
+})();
