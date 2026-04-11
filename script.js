@@ -1,190 +1,131 @@
-/* ===========================
-   VALADS — script.js
-   =========================== */
+/* VALADS — script.js */
 
-(function () {
-  'use strict';
+document.addEventListener('DOMContentLoaded', function () {
 
-  /* ---- Smooth scroll polyfill guard ---- */
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* ---- DOM refs ---- */
-  const header      = document.getElementById('header');
-  const navLinks    = document.querySelectorAll('.nav-link');
-  const navToggle   = document.querySelector('.nav-toggle');
-  const nav         = document.querySelector('.nav');
-  const sections    = document.querySelectorAll('section[id]');
-  const modalOverlay = document.getElementById('modal-overlay');
-  const modalBox    = document.getElementById('modal-box');
-  const modalBody   = document.getElementById('modal-body');
-  const modalClose  = document.getElementById('modal-close');
-
-  /* ===========================
-     HEADER SCROLL BEHAVIOUR
-     =========================== */
-  function onScroll () {
-    if (window.scrollY > 48) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
-    }
+  /* --- Header scroll --- */
+  var header = document.getElementById('header');
+  function onScroll() {
+    header.classList.toggle('scrolled', window.scrollY > 48);
     updateActiveNav();
   }
-
   window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll(); // run on load
+  onScroll();
 
-  /* ===========================
-     ACTIVE NAV HIGHLIGHT
-     =========================== */
-  function updateActiveNav () {
-    let current = '';
-    sections.forEach(section => {
-      const top = section.getBoundingClientRect().top;
-      if (top <= 120) {
-        current = section.id;
-      }
+  /* --- Active nav --- */
+  var navLinks = document.querySelectorAll('.nav-link');
+  var sections = document.querySelectorAll('section[id]');
+  function updateActiveNav() {
+    var current = '';
+    sections.forEach(function(s) {
+      if (s.getBoundingClientRect().top <= 120) current = s.id;
     });
-
-    navLinks.forEach(link => {
-      link.classList.toggle('active', link.dataset.section === current);
+    navLinks.forEach(function(l) {
+      l.classList.toggle('active', l.dataset.section === current);
     });
   }
 
-  /* ===========================
-     SMOOTH SCROLL FOR ANCHORS
-     =========================== */
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      const target = document.querySelector(this.getAttribute('href'));
+  /* --- Smooth scroll --- */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
       if (!target) return;
       e.preventDefault();
-
-      // Close mobile nav if open
       closeNav();
-
-      const headerHeight = header.offsetHeight;
-      const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight;
-
-      if (prefersReducedMotion) {
-        window.scrollTo(0, targetTop);
-      } else {
-        window.scrollTo({ top: targetTop, behavior: 'smooth' });
-      }
+      var top = target.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
+      window.scrollTo({ top: top, behavior: 'smooth' });
     });
   });
 
-  /* ===========================
-     MOBILE NAV TOGGLE
-     =========================== */
-  function openNav () {
-    nav.classList.add('open');
-    navToggle.classList.add('open');
-    navToggle.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeNav () {
+  /* --- Mobile nav --- */
+  var navToggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.nav');
+  function closeNav() {
     nav.classList.remove('open');
     navToggle.classList.remove('open');
     navToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   }
-
   if (navToggle) {
-    navToggle.addEventListener('click', () => {
-      if (nav.classList.contains('open')) {
-        closeNav();
-      } else {
-        openNav();
-      }
+    navToggle.addEventListener('click', function() {
+      var open = nav.classList.toggle('open');
+      navToggle.classList.toggle('open', open);
+      navToggle.setAttribute('aria-expanded', open);
+      document.body.style.overflow = open ? 'hidden' : '';
     });
   }
-
-  // Close nav on Escape
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closeNav();
-      closeModal();
-    }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeNav(); closeModal(); }
   });
 
-  /* ===========================
-     PROJECT MODALS
-     =========================== */
-  function openModal (id) {
-    const tmpl = document.getElementById(`${id}-content`);
+  /* --- Modals --- */
+  var modalOverlay = document.getElementById('modal-overlay');
+  var modalBox = document.getElementById('modal-box');
+  var modalBody = document.getElementById('modal-body');
+  var modalClose = document.getElementById('modal-close');
+
+  function openModal(id) {
+    var tmpl = document.getElementById(id + '-content');
     if (!tmpl) return;
     modalBody.innerHTML = '';
     modalBody.appendChild(tmpl.content.cloneNode(true));
     modalOverlay.classList.add('open');
-    modalOverlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    // Focus trap: move focus to close button
-    setTimeout(() => modalClose.focus(), 50);
   }
-
-  function closeModal () {
+  function closeModal() {
     modalOverlay.classList.remove('open');
-    modalOverlay.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
   }
-
-  // Open via card or link clicks
-  document.querySelectorAll('[data-modal]').forEach(el => {
-    el.addEventListener('click', function (e) {
-      // Don't double-trigger when clicking the button inside the card
+  document.querySelectorAll('[data-modal]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
       if (e.target.classList.contains('project-link') && el.tagName === 'ARTICLE') return;
-      if (el.tagName === 'ARTICLE') {
-        openModal(this.dataset.modal);
-      } else {
-        e.stopPropagation();
-        openModal(this.dataset.modal);
+      if (el.tagName === 'ARTICLE') { openModal(el.dataset.modal); }
+      else { e.stopPropagation(); openModal(el.dataset.modal); }
+    });
+  });
+  modalOverlay.addEventListener('click', function(e) {
+    if (!modalBox.contains(e.target)) closeModal();
+  });
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+
+  /* --- FLIP WORD --- */
+  var words = [
+    { word: 'Facebook',  suffix: 'nestačí.' },
+    { word: 'Instagram', suffix: 'nestačí.' },
+    { word: 'plagáty',   suffix: 'nestačia.' }
+  ];
+  var slot = document.getElementById('flip-slot');
+  var card = slot ? slot.querySelector('.flip-word__card') : null;
+  var text = slot ? slot.querySelector('.flip-word__text') : null;
+  var suffix = document.getElementById('flip-suffix');
+  var idx = 0;
+  var flipDuration = 760;
+  var flipInterval = 3400;
+  var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function setPhrase(i) {
+    text.textContent = words[i].word;
+    suffix.textContent = words[i].suffix;
+  }
+
+  if (slot && card && text && suffix) {
+    setPhrase(idx);
+
+    window.setInterval(function() {
+      idx = (idx + 1) % words.length;
+
+      if (motionQuery.matches) {
+        setPhrase(idx);
+        return;
       }
-    });
-  });
 
-  // Close on overlay click (outside modal box)
-  modalOverlay.addEventListener('click', function (e) {
-    if (!modalBox.contains(e.target)) {
-      closeModal();
-    }
-  });
+      card.classList.remove('is-flipping');
+      void card.offsetWidth;
+      card.classList.add('is-flipping');
 
-  // Close button
-  if (modalClose) {
-    modalClose.addEventListener('click', closeModal);
+      window.setTimeout(function() {
+        setPhrase(idx);
+      }, Math.round(flipDuration * 0.5));
+    }, flipInterval);
   }
 
-  /* ===========================
-     ENTRANCE ANIMATIONS
-     (CSS-driven, JS sets class)
-     =========================== */
-  if (!prefersReducedMotion) {
-    const revealEls = document.querySelectorAll(
-      '.hero-inner, .reality-inner, .section-header, .project-card, .process-step, .contact-intro, .contact-block'
-    );
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-    revealEls.forEach((el, i) => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = `opacity 0.55s ease ${i * 0.04}s, transform 0.55s ease ${i * 0.04}s`;
-      observer.observe(el);
-    });
-
-    // When revealed class is added, animate in
-    const style = document.createElement('style');
-    style.textContent = `.revealed { opacity: 1 !important; transform: translateY(0) !important; }`;
-    document.head.appendChild(style);
-  }
-
-})();
+});
